@@ -19,7 +19,8 @@ public class ChatController {
     @GetMapping
     public String chat() {
         return chatClient.prompt()
-            .user("Berätta för mig om rapid rhino")
+            .system(FMBData.J20_Akut_Bronkit)
+            .user(CertificateData.J20_Akut_Bronkit)
             .call()
             .content();
     }
