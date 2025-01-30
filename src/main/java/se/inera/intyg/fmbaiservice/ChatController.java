@@ -1,9 +1,14 @@
 package se.inera.intyg.fmbaiservice;
 
+import java.util.List;
+import java.util.Map;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.vectorstore.azure.AzureVectorStore;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import se.inera.intyg.fmbaiservice.dto.ResponseDTO;
 
 @RestController
 public class ChatController {
@@ -16,12 +21,18 @@ public class ChatController {
         .build();
   }
 
-  @GetMapping
-  public String chat() {
+  @PostMapping
+  public List<ResponseDTO> chat(@RequestBody Map<String, String> input) {
     return chatClient.prompt()
         .system(SystemPromt.PROMT_RETURN_DATA + FMBData.J20_Akut_Bronkit)
-        .user(CertificateData.J20_Akut_Bronkit)
+        .user(
+            input.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElseThrow()
+        )
         .call()
-        .content();
+        .entity(new ParameterizedTypeReference<>() {
+        });
   }
 }
